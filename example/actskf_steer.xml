@@ -1,0 +1,146 @@
+<?dahxml version="1.0" encoding="us-ascii"?>
+<!--
+?xml-stylesheet type="text/xsl"
+href="http://ilcsoft.desy.de/marlin/marlin.xsl"?
+-->
+<!-- ?xml-stylesheet type="text/xsl" href="marlin.xsl"? -->
+
+<marlin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ilcsoft.desy.de/marlin/marlin.xsd">
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == List of processors to execute                                                                      == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+
+  <execute>
+    <!-- ========== setup  ========== -->
+    <processor name="MyAIDAProcessor"/>
+    <processor name="EventNumber" />
+    <processor name="Config" />
+
+    <!-- ==========  Geometry initialization  ========== -->
+    <processor name="InitDD4hep"/>
+
+    <!-- ==========  Tracking  ========== -->
+    <processor name="MyKFTracking"/>
+    <processor name="MyTrackDeduper"/>
+
+    <!-- ==========  Output  ========== -->
+    <processor name="Output_REC"/>
+  </execute>
+
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == Global setup                                                                                       == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+
+  <processor name="Config" type="CLICRecoConfig" >
+    <!--Which option to use for Overlay: False, BIB. Then use, e.g., Config.OverlayFalse in the condition-->
+    <parameter name="Overlay" type="string">False</parameter>
+    <!--Possible values and conditions for option Overlay-->
+    <parameter name="OverlayChoices" type="StringVec">False BIB</parameter>
+    <!--Which option to use for Tracking: Truth, ConformalPlusExtrapolator, Conformal. Then use, e.g., Config.TrackingTruth in the condition-->
+    <parameter name="Tracking" type="string">Truth</parameter>
+    <!--Possible values and conditions for option Tracking-->
+    <parameter name="TrackingChoices" type="StringVec">Truth Conformal</parameter>
+    <!--Which option to use for VertexUnconstrained: ON, OFF. Then use, e.g., Config.VertexUnconstrainedOFF in the condition-->
+    <parameter name="VertexUnconstrained" type="string">OFF </parameter>
+    <!--Possible values and conditions for option Tracking-->
+    <parameter name="VertexUnconstrainedChoices" type="StringVec">ON OFF  </parameter>
+    <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
+    <parameter name="Verbosity" options="DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT"> DEBUG4  </parameter> 
+  </processor>
+
+  <processor name="EventNumber" type="Statusmonitor">
+    <parameter name="HowOften" type="int">1 </parameter>
+    <parameter name="Verbosity" type="string"> MESSAGE </parameter>
+  </processor>
+
+  <processor name="MyAIDAProcessor" type="AIDAProcessor">
+    <parameter name="FileName" type="string">
+      lctuple_actskf
+    </parameter>
+    <parameter name="FileType" type="string">root</parameter>
+  </processor>
+
+  <global>
+    <parameter name="LCIOInputFiles">
+      ACTS.slcio
+    </parameter>
+    <parameter name="MaxRecordNumber" value="-1" />
+    <parameter name="SkipNEvents" value="0" />
+    <parameter name="SupressCheck" value="false" />
+    <parameter name="Verbosity"	options="DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT">MESSAGE0</parameter>
+  </global>
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == DD4hep configuration                                                                               == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  
+  <processor name="InitDD4hep" type="InitializeDD4hep">
+    <!--InitializeDD4hep reads a compact xml file and initializes the dd4hep::Detector object-->
+    <!--Name of the DD4hep compact xml file to load-->
+    <parameter name="DD4hepXMLFile" type="string">
+      ../../luxegeo/compact/LUXETrackerAsEndcap.xml
+    </parameter>
+    <!--Alternate name for EncodingStringParameterName-->
+    <!--If given, the Compact File parameter of that name will be used as argument to LCTrackerCellID::set_encoding_string()-->
+    <parameter name="EncodingStringParameterName" type="string"> GlobalTrackerReadoutID </parameter>
+    <!--<parameter name="EncodingStringParameterName" type="string"> </parameter>-->
+    <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
+    <!--parameter name="Verbosity" type="string">DEBUG </parameter-->
+  </processor>
+
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == Track finding configuration                                                                        == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+
+
+  <processor name="MyKFTracking" type="ACTSKFTrackingProc">
+    <!-- Path to material description -->
+<!--    <parameter name="MatFile" type="string">
+      data/material-maps.json 
+    </parameter>-->
+   <!-- Path to tracking geometry -->
+    <parameter name="TGeoFile" type="string">
+      ../data/LUXETrackerAsEndcap.root
+    </parameter>
+    <!--Define input tracker hits and relations. NB. Order must be respected -->
+    <parameter name="TrackerHitCollectionNames" type="StringVec" lcioInType="TrackerHitPlane">
+      SiTrackerHits
+    </parameter>
+    <parameter name="TrackCollectionNames" type="StringVec" lcioInType="Track">
+      TrackCandidates
+    </parameter>
+    <parameter name="TrackCollectionName" type="string" lcioOutType="Track">AllTracks</parameter>
+    <parameter name="Verbosity" type="string">DEBUG0 </parameter>
+  </processor>
+
+  <processor name="MyTrackDeduper" type="LUXEDuplicateRemoval">
+    <parameter name="InputTrackCollectionName" type="string" lcioOutType="Track">AllTracks</parameter>
+    <parameter name="OutputTrackCollectionName" type="string" lcioOutType="Track">Tracks</parameter>
+  </processor>
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == LCTuple configuration                                                                              == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+
+  <processor name="Output_REC" type="LCIOOutputProcessor">
+    <!--   standard output: full reconstruction keep all collections -->
+    <parameter name="LCIOOutputFile" type="string"> Output_REC_ACTS_KF.slcio </parameter>
+    <parameter name="LCIOWriteMode" type="string" value="WRITE_NEW"/>
+    <!-- <parameter name="SplitFileSizekB" type="int">996147 </parameter> -->
+    <parameter name="Verbosity" type="string">WARNING </parameter>
+    <parameter name="KeepCollectionNames" type="StringVec">  </parameter>
+  </processor>
+</marlin>

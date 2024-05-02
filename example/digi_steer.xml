@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="us-ascii"?>
+
+<marlin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ilcsoft.desy.de/marlin/marlin.xsd">
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == List of processors to execute                                                                      == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+
+  <execute>
+    <!-- ========== setup  ========== -->
+    <processor name="MyAIDAProcessor"/>
+    <processor name="EventNumber" />
+    <processor name="Config" />
+
+    <!-- ==========  Geometry initialization  ========== -->
+    <processor name="InitDD4hep"/>
+
+    <!-- ==========  Tracker Digitization  ========== -->
+    <processor name="MyDDPlanarDigiProcessor"/>-->
+
+    <!-- ==========  Output  ========== -->
+    <!--<processor name="MyACTSTuple" />-->
+    <processor name="MyLCTuple" />
+  </execute>
+
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == Global setup                                                                                       == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+
+  <processor name="Config" type="CLICRecoConfig" >
+    <parameter name="Verbosity" options="DEBUG0-9,MESSAGE0-9,WARNING0-9,ERROR0-9,SILENT"> DEBUG7  </parameter>
+  </processor>
+
+  <processor name="EventNumber" type="Statusmonitor">
+    <parameter name="HowOften" type="int">1 </parameter>
+    <parameter name="Verbosity" type="string"> MESSAGE </parameter>
+  </processor>
+
+  <processor name="MyAIDAProcessor" type="AIDAProcessor">
+    <parameter name="FileName" type="string">
+      lctuple
+    </parameter>
+    <parameter name="FileType" type="string">root</parameter>
+  </processor>
+
+  <global>
+    <parameter name="LCIOInputFiles">
+      input.slcio
+    </parameter>
+    <parameter name="MaxRecordNumber" value="-1" />
+    <parameter name="SkipNEvents" value="0" />
+    <parameter name="SupressCheck" value="false" />
+    <parameter name="Verbosity"	options="DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT">MESSAGE0</parameter>
+  </global>
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == DD4hep configuration                                                                               == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  
+  <processor name="InitDD4hep" type="InitializeDD4hep">
+    <!--InitializeDD4hep reads a compact xml file and initializes the dd4hep::Detector object-->
+    <!--Name of the DD4hep compact xml file to load-->
+    <parameter name="DD4hepXMLFile" type="string">
+      ../../luxegeo/compact/LUXETracker.xml
+    </parameter>
+    <!--Alternate name for EncodingStringParameterName-->
+    <!--If given, the Compact File parameter of that name will be used as argument to LCTrackerCellID::set_encoding_string()-->
+    <parameter name="EncodingStringParameterName" type="string"> GlobalTrackerReadoutID </parameter>
+    <!--<parameter name="EncodingStringParameterName" type="string"> </parameter>-->
+    <!--verbosity level of this processor ("DEBUG0-4,MESSAGE0-4,WARNING0-4,ERROR0-4,SILENT")-->
+    <parameter name="Verbosity" type="string">DEBUG </parameter>
+  </processor>
+
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+  <!-- == Tracker Digitizer configuration                                                                    == -->
+  <!-- ======================================================================================================== -->
+  <!-- ======================================================================================================== -->
+
+  <processor name="MyDDPlanarDigiProcessor" type="DDPlanarDigiProcessor">
+    <parameter name="SubDetectorName" type="string">Tracker</parameter>
+    <parameter name="SimTrackHitCollectionName" type="string" lcioInType="SimTrackerHit">SiHits</parameter>
+    <parameter name="SimTrkHitRelCollection" type="string" lcioOutType="LCRelation">SiTrackerHitRelations</parameter>
+    <parameter name="TrackerHitCollectionName" type="string" lcioOutType="TrackerHitPlane">SiTrackerHits</parameter>
+    <parameter name="ResolutionU" type="float">0.005</parameter>
+    <parameter name="ResolutionV" type="float">0.005</parameter>
+    <parameter name="Verbosity" type="string">DEBUG4</parameter>
+  </processor>
+
+  <processor name="MyACTSTuple" type="ACTSTuple">
+    <parameter name="MCParticleCollection" type="string" lcioInType="MCParticle">MCParticle</parameter>
+    <parameter name="SimTrackerHitCollection" type="string" lcioInType="SimTrackerHit">SiHits</parameter>
+    <parameter name="TrackerHitCollection" type="string" lcioInType="TrackerHit">SiTrackerHits</parameter>
+  </processor>
+
+  <processor name="MyLCTuple" type="LCTuple">
+    <parameter name="MCParticleCollection" type="string" lcioInType="MCParticle">MCParticle</parameter>
+    <parameter name="TrackerHitCollection" type="string" lcioInType="TrackerHit">SiTrackerHits</parameter>
+  </processor>
+
+</marlin>
