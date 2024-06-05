@@ -44,6 +44,6 @@ uint64_t GeometryIdMappingTool::getGeometryID(uint32_t systemID,
 
   uint64_t sensitive_id;
   sensitive_id = layerID%2==0?ladderID+1:ladderID+10;
-  geometry_id |= sensitive_id << (0 * 4);
+  geometry_id |= sensitive_id << (2 * 4);
   return geometry_id;
 }

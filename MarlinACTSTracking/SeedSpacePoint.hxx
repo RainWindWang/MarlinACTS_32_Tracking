@@ -41,6 +41,12 @@ class SeedSpacePoint {
   constexpr float varianceZ() const { return m_varianceZ; }
 
   constexpr SourceLink sourceLink() const { return m_sourceLink; }
+ 
+ const std::optional<float> t() const
+  {
+    return m_sourceLink.lciohit()->getTime();
+  }
+  // TODO missing: const std::optional<float> varianceT() const
 
  private:
   // Global position
