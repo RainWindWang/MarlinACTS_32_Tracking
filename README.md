@@ -17,3 +17,8 @@ To run combinatorial Kalman Filter tracking:
 ```bash
 Marlin actsseedckf_steer.xml
 ```
+
+With updates from ACTS v32, the nightlies should be working:
+```bash
+source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
+```
