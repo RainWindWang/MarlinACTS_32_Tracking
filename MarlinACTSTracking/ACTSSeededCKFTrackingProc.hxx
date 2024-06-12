@@ -64,6 +64,10 @@ class ACTSSeededCKFTrackingProc : public ACTSProcBase {
   float _seedFinding_rMax = 150;
   float _seedFinding_deltaRMin = 5;
   float _seedFinding_deltaRMax = 80;
+  float _seedFinding_deltaRMinTop = 0;
+  float _seedFinding_deltaRMaxTop = 0;
+  float _seedFinding_deltaRMinBottom = 0;
+  float _seedFinding_deltaRMaxBottom = 0;
   float _seedFinding_collisionRegion = 75;
   float _seedFinding_zMax = 600;
   float _seedFinding_sigmaScattering = 50;
@@ -71,6 +75,12 @@ class ACTSSeededCKFTrackingProc : public ACTSProcBase {
   float _seedFinding_minPt = 500;
   float _seedFinding_impactMax = 3 * Acts::UnitConstants::mm;
 
+  StringVec _seedFinding_zBinEdges;
+  int _zTopBinLen = 1;
+  int _zBottomBinLen = 1;
+  int _phiTopBinLen = 1;
+  int _phiBottomBinLen = 1;
+  
   // Track fit parameters
   double _initialTrackError_pos;
   double _initialTrackError_phi;
