@@ -1,8 +1,9 @@
 #pragma once
 
 #include <EVENT/LCEvent.h>
-// #include <EVENT/Track.h>
-// #include <EVENT/TrackState.h>
+#include <EVENT/MCParticle.h>
+#include <EVENT/Track.h>
+#include <EVENT/TrackState.h>
 #include <IMPL/TrackImpl.h>
 #include <IMPL/TrackStateImpl.h>
 
@@ -10,13 +11,20 @@
 #include <UTIL/LCTrackerConf.h>
 
 #include <Acts/EventData/TrackParameters.hpp>
+#include "Acts/EventData/ParticleHypothesis.hpp"
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFitting/KalmanFitter.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
 
 #include "SourceLink.hxx"
 
 namespace ACTSTracking {
+
+using TrackResult = Acts::TrackContainer<Acts::VectorTrackContainer,
+                                         Acts::VectorMultiTrajectory,
+                                         std::shared_ptr>::TrackProxy;
 
 /// @brief void outlier finder
 // an outlier finder that accepts any hit (does not reject anything)
@@ -51,23 +59,9 @@ return false;
  */
 std::string findFile(const std::string& inpath);
 
-//! Convert ACTS track state class to Marlin class
-/**
- * \param location Location where the track state is defined (ie: `AtIP`)
- * \param params ACTS track state parameters
- * \params Bz magnetic field at location of track state [Tesla]
- *
- * \return Track state with equivalent parameters of the ACTS track
- */
-EVENT::TrackState* ACTS2Marlin_trackState(
-    int location, const Acts::BoundTrackParameters& params, double Bz);
 
-EVENT::TrackState* ACTS2Marlin_trackState(int location,
-                                          const Acts::BoundVector& value,
-                                          const Acts::BoundMatrix& cov,
-                                          double Bz);
-
-
+/*
+// this was used in old ACTS2Marlin_track
 inline auto getFitParams(const Acts::CombinatorialKalmanFilterResult<ACTSTracking::SourceLink>& fitOutput, std::size_t trackTip) {
     return fitOutput.fittedParameters.at(trackTip);
 }
@@ -75,8 +69,8 @@ inline auto getFitParams(const Acts::CombinatorialKalmanFilterResult<ACTSTrackin
 inline auto getFitParams(const Acts::KalmanFitterResult<ACTSTracking::SourceLink>& fitOutput, std::size_t) {
     return fitOutput.fittedParameters.value();
 }
-
-//! Convert ACTS CKF result to LCIO track class
+*/
+//! Convert ACTS CKF result to LCIO track class -------------------------------------------------------------------------
 /**
  * Converted propertie are:
  *  - goodness of fit (chi2, ndf)
@@ -90,6 +84,7 @@ inline auto getFitParams(const Acts::KalmanFitterResult<ACTSTracking::SourceLink
  *
  * \return Track with equivalent parameters of the ACTS track
  */
+ /*
  template<typename KFResultT>
 EVENT::Track* ACTS2Marlin_track(
     const KFResultT&
@@ -105,7 +100,7 @@ EVENT::Track* ACTS2Marlin_track(
   track->setChi2(trajState.chi2Sum);
   track->setNdf(trajState.NDF);
 
-  // Track state at IP
+  // Track state at IP -------------------------------------------------------------------------
   static const Acts::Vector3 zeroPos(0, 0, 0);
   Acts::Result<Acts::Vector3> fieldRes =
       magneticField->getField(zeroPos, magCache);
@@ -187,9 +182,9 @@ EVENT::Track* ACTS2Marlin_track(
                        statesOnTrack.end());
 
   return track;
-}
+}*/
 
-// EVENT::Track* ACTS2Marlin_track_KF(
+// EVENT::Track* ACTS2Marlin_track_KF( 
 //     const Acts::KalmanFitterResult<ACTSTracking::SourceLink>&
 //         fitOutput,
 //     std::size_t trackTip,
@@ -209,11 +204,28 @@ EVENT::Track* ACTS2Marlin_track(
  *
  * \return Track with equivalent parameters of the ACTS track
  */
+
+//! Convert ACTS result to LCIO track class
 EVENT::Track* ACTS2Marlin_track(
-    const Acts::KalmanFitterResult<ACTSTracking::SourceLink>& fitOutput,
+    const TrackResult& fitter_res, // TrackResult instead of KFResult & CKFResult
     std::shared_ptr<Acts::MagneticFieldProvider> magneticField,
     Acts::MagneticFieldProvider::Cache& magCache);
 
+//! Convert ACTS track state class to Marlin class -------------------------------------------------------------------------
+/**
+ * \param location Location where the track state is defined (ie: `AtIP`)
+ * \param params ACTS track state parameters
+ * \params Bz magnetic field at location of track state [Tesla]
+ *
+ * \return Track state with equivalent parameters of the ACTS track
+ */
+EVENT::TrackState* ACTS2Marlin_trackState(
+    int location, const Acts::BoundTrackParameters& params, double Bz);
+
+EVENT::TrackState* ACTS2Marlin_trackState(int location,
+                                          const Acts::BoundVector& value,
+                                          const Acts::BoundMatrix& cov,
+                                          double Bz);
 
 //! Get collection from `LCEvent` with silent fail
 /**
@@ -224,4 +236,7 @@ EVENT::Track* ACTS2Marlin_track(
  */
 EVENT::LCCollection* getCollection(EVENT::LCEvent* evt,
                                    const std::string& name);
+
+Acts::ParticleHypothesis convertParticle(const EVENT::MCParticle* mcParticle);
+
 }  // namespace ACTSTracking
