@@ -16,6 +16,8 @@
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Navigator.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+//#include <Acts/Utilities/GridBinFinder.hpp>
+//#include <Acts/Utilities/GridBinFinder.ipp>
 //#include <Acts/Seeding/BinFinder.hpp>
 //#include <Acts/Seeding/BinnedSPGroup.hpp>
 //#include <LUXEEstimateTrackParamsFromSeed.hpp>
@@ -522,7 +524,11 @@ void ACTSSeededCKFTrackingProc::processEvent(LCEvent *evt) {
   Acts::CylindricalSpacePointGridCreator::fillGrid(finderCfg, finderOpts, grid,
       spacePointPtrs.begin(), spacePointPtrs.end(), extractGlobalQuantities,
       rRangeSPExtent);
-
+ // pair
+  //auto bottomBinFinder = std::make_unique<Acts::GridBinFinder<2ul>>(_phiBottomBinLen, _zBottomBinLen);
+  //auto topBinFinder = std::make_unique<Acts::GridBinFinder<2ul>>(_phiTopBinLen, _zTopBinLen);
+  //const Acts::GridBinFinder<2ul> bottomBinFinder(1,1);
+  //const Acts::GridBinFinder<2ul> topBinFinder(1,1);
   const Acts::GridBinFinder<2ul> bottomBinFinder(_phiBottomBinLen, _zBottomBinLen);
   const Acts::GridBinFinder<2ul> topBinFinder(_phiTopBinLen, _zTopBinLen);
 
@@ -615,7 +621,7 @@ void ACTSSeededCKFTrackingProc::processEvent(LCEvent *evt) {
           std::pow(_initialTrackError_relP * p / (p * p), 2);
 
       Acts::BoundTrackParameters paramseed(surface->getSharedPtr(), params,
-                                           cov, Acts::ParticleHypothesis::ePositron());
+                                           cov, Acts::ParticleHypothesis::electron());
       paramseeds.push_back(paramseed);
 
       //

@@ -11,7 +11,7 @@
 #include <UTIL/LCTrackerConf.h>
 
 #include <Acts/EventData/TrackParameters.hpp>
-#include "Acts/EventData/ParticleHypothesis.hpp"
+#include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFitting/KalmanFitter.hpp>
