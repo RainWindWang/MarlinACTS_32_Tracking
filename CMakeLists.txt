@@ -45,7 +45,7 @@ CONFIGURE_FILE(src/config.h.in config.h)
 ADD_LIBRARY(MarlinACTSTracking SHARED
   ./src/ACTSProcBase.cxx
   ./src/ACTSSeededCKFTrackingProc.cxx
-  ./src/ACTSKFTrackingProc.cxx
+#  ./src/ACTSKFTrackingProc.cxx
   ./src/GeometryIdSelector.cxx
   ./src/GeometryIdMappingTool.cxx
   ./src/Helpers.cxx
