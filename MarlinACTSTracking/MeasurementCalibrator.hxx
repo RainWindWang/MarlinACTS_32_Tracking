@@ -32,7 +32,7 @@ class MeasurementCalibrator {
   template <typename parameters_t>
   const Measurement& operator()(const SourceLink& sourceLink,
                                 const parameters_t& /* parameters */) const {
-    assert((sourceLink.index() < m_measurements->size()) and
+    assert((sourceLink.index() < m_measurements.size()) and
            "Source link index is outside the container bounds");
     return m_measurements[sourceLink.index()];
   }
